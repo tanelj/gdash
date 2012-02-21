@@ -9,7 +9,7 @@ class GDash
   require 'gdash/sinatra_app'
   require 'graphite_graph'
 
-  attr_reader :graphite_base, :graphite_render, :dash_templates, :height, :width, :from, :until
+  attr_reader :graphite_base, :graphite_render, :dash_templates, :height, :width, :from, :until, :placeholders
 
   def initialize(graphite_base, render_url, dash_templates, options={})
     @graphite_base = graphite_base
@@ -19,6 +19,7 @@ class GDash
     @width = options.delete(:width)
     @from = options.delete(:from)
     @until = options.delete(:until)
+    @placeholders = options.delete(:placeholders)
 
     raise "Dashboard templates directory #{@dash_templates} does not exist" unless File.directory?(@dash_templates)
   end
@@ -28,6 +29,7 @@ class GDash
     options[:height] ||= @height
     options[:from] ||= @from
     options[:until] ||= @until
+    options[:placeholders] = options[:placeholders].is_a?(Hash) ? placeholders.merge(options[:placeholders]) : @placeholders
 
     Dashboard.new(name, dash_templates, options)
   end

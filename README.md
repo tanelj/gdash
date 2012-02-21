@@ -143,6 +143,67 @@ _600_ and a height of _300_
 
 The screen will refresh every minute
 
+
+Need To Reuse Graph Paramters?
+-----------------------
+
+If you have some graph parameters that are common for whole dashboard or all dashboards then you can use placeholders like `%{myplaceholder}`. 
+Placeholders are replaced with values provided by config files or given by url as parameters:
+
+    http://gdash.example.com/dashboard/email/?p[myplaceholder]=myvalue&p[myplaceholder2]=myvalue2
+
+Example usage.
+
+Example datasources in Graphite:
+
+    servers.myserver.visitors.countries.us
+    servers.myserver.visitors.countries.uk
+    servers.myserver.pageviews.countries.us
+    servers.myserver.pageviews.countries.uk
+
+
+Defaults mapping in your global _gdash.yaml_ file:
+
+	:options:
+	  :graph_placeholders:
+	    :server: 'servers.myserver'
+	    :gridline_color: '#3313131'
+
+Defaults in your dashboard _dash.yaml_ file:
+
+    :graph_placeholders:
+      :country: 'us'
+
+In your graph file _example1.graph_:
+
+    title 'Visitors for %{country}'
+    major_grid_line_color '%{gridline_color}'
+    minor_grid_line_color '%{gridline_color}'
+
+    field :visitors,
+      :alias => 'Visitors',
+      :data  => '%{server}.visitors.countries.%{country}'
+
+
+In your graph file _example2.graph_:
+
+    title 'Pageviews for %{country}'
+    major_grid_line_color '%{gridline_color}'
+    minor_grid_line_color '%{gridline_color}'
+
+    field :pageviews,
+     :alias => 'Pageviews',
+     :data  => '%{server}.pageviews.countries.%{country}'
+
+To show your country based dashboards:
+
+    http://gdash.example.com/dashboard/traffic/?p[country]=us
+    http://gdash.example.com/dashboard/traffic/full/2/600/300?p[country]=us
+    http://gdash.example.com/dashboard/traffic/?p[country]=uk
+    http://gdash.example.com/dashboard/traffic/full/2/600/300?p[country]=uk
+
+
+
 Contact?
 --------
 

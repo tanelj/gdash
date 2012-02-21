@@ -28,3 +28,5 @@
     - [ "-1day", "1 day" ]
     - [ "-1month", "1 month" ]
     - [ "-1year", "1 year" ]
+#  :graph_placeholders:
+#     :gridline_color: '#3313131'

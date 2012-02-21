@@ -36,11 +36,14 @@ class GDash
 
       @intervals = options.delete(:intervals) || []
 
+      # Load global placeholders
+      @graph_placeholders = options.delete(:graph_placeholders) || {}
+
       @top_level = Hash.new
       Dir.entries(@graph_templates).each do |category|
         if File.directory?("#{@graph_templates}/#{category}")
           unless ("#{category}" =~ /^\./ )
-            @top_level["#{category}"] = GDash.new(@graphite_base, "/render/", File.join(@graph_templates, "/#{category}"), {:width => @graph_width, :height => @graph_height})
+            @top_level["#{category}"] = GDash.new(@graphite_base, "/render/", File.join(@graph_templates, "/#{category}"), {:width => @graph_width, :height => @graph_height, :placeholders => @graph_placeholders})
           end
         end
       end
@@ -148,10 +151,17 @@ class GDash
         protected_keys = [:category, :dash, :splat]
 
         params.each do |k, v|
+          k = query_alias_map(k)
+          v = v.inject({}) { |memo, e| memo[e[0].to_sym] = e[1]; memo } if v.is_a?(Hash)
           hash[k.to_sym] = v unless protected_keys.include?(k.to_sym)
         end
 
         hash
+      end
+
+      def query_alias_map(k)
+        q_aliases = {'p' => 'placeholders'}
+        q_aliases[k] || k
       end
     end
   end

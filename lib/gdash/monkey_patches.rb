@@ -1,3 +1,9 @@
+class Object
+  def to_query(key)
+    "#{key.to_s}=#{to_s}"
+  end
+end
+
 class Array
   def in_groups_of(chunk_size, padded_with=nil)
     if chunk_size <= 1
@@ -29,6 +35,23 @@ class Array
         result
       end
     end
+  end
+
+  def to_query(key)
+    prefix = "#{key}[]"
+    collect { |value| value.to_query(prefix) }.join '&'
+  end
+end
+
+class Hash
+  def to_param(namespace = nil)
+    collect do |key, value|
+      if value.is_a?(Hash)
+        value.to_param(key)
+      else
+        value.to_query(namespace ? "#{namespace}[#{key}]" : key)
+      end
+    end.sort * '&'
   end
 end
 

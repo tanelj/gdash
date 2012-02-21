@@ -143,20 +143,22 @@ class GDash
       alias_method :h, :escape_html
 
       def link_to_interval(options)
-        "<a href=\"#{ [@prefix, params[:category], params[:dash], 'time', h(options[:from]), h(options[:to])].join('/') }\">#{ h(options[:label]) }</a>"
+        url = [@prefix, params[:category], params[:dash], 'time', h(options[:from]), h(options[:to])].join('/')
+        url = "#{url}?#{@query_params.to_param}" if @query_params and not @query_params.empty?
+        "<a href=\"#{ url }\">#{ h(options[:label]) }</a>"
       end
 
       def query_params
-        hash = {}
+        @query_params = {}
         protected_keys = [:category, :dash, :splat]
 
         params.each do |k, v|
           k = query_alias_map(k)
           v = v.inject({}) { |memo, e| memo[e[0].to_sym] = e[1]; memo } if v.is_a?(Hash)
-          hash[k.to_sym] = v unless protected_keys.include?(k.to_sym)
+          @query_params[k.to_sym] = v unless protected_keys.include?(k.to_sym)
         end
 
-        hash
+        @query_params
       end
 
       def query_alias_map(k)
